@@ -3,6 +3,7 @@
 ;;; AWS S3 client
 (import "sigv4"
         "interface"
+        :std/debug/DBG
         :std/net/request
         :std/misc/func
         :std/net/uri
@@ -48,6 +49,7 @@
       (let* ((req (s3-request/error self verb: 'GET))
              (xml (s3-parse-xml req))
              (buckets (sxml-find xml (sxml-e? 's3:Buckets) sxml-children))
+             (_ (DBG list-buckets: (request-text req) xml buckets))
              (names (map (chain <>
                            (sxml-select <> (sxml-e? 's3:Name))
                            (cadar <>)
@@ -114,7 +116,8 @@
       (let* ((name (bucket-name self))
              (req (s3-request/error client verb: 'GET bucket: name))
              (xml (s3-parse-xml req))
-             (keys (sxml-select xml (sxml-e? 's3:Key) cadr)))
+             (keys (sxml-select xml (sxml-e? 's3:Key) cadr))
+             (_ (DBG list-objects: (request-text req) xml keys)))
         (request-close req)
         keys))))
 
