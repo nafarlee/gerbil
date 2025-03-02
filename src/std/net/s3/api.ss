@@ -130,6 +130,16 @@
              (request-close req)
              data))))
 
+(defmethod {exists? bucket}
+  (lambda (self key)
+    (using ((self :- bucket)
+            (client self.client :- s3-client))
+      (let* ((req (s3-request/error client
+                                    verb: 'HEAD
+                                    bucket: (bucket-name self)
+                                    path: (string-append "/" key))))
+        req))))
+
 (defmethod {put! bucket}
   (lambda (self key data content-type: (content-type "binary/octet-stream"))
     (using ((self :- bucket)
